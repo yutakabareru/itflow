@@ -1,7 +1,15 @@
 $(document).ready(function() {
   var defaultConfirmMessage = $("#confirmationModal .modal-body").text().trim() || "Are you sure?";
   var assetUnlinkMessage = "Are you sure you want to unlink this asset?";
+  var documentUnlinkMessage = "Are you sure you want to unlink this document?";
   var itemUnlinkMessage = "Are you sure you want to unlink this item?";
+
+  var linkFieldNames = [
+    "connected_to",
+    "assets[]",
+    "additional_assets[]",
+    "documents[]"
+  ];
 
   function showConfirmationModal(message, onConfirm) {
     $("#confirmationModal .modal-body").text(message || defaultConfirmMessage);
@@ -17,27 +25,45 @@ $(document).ready(function() {
     $("#confirmationModal .modal-body").text(defaultConfirmMessage);
   });
 
-  window.captureFormAssetLinks = function($form) {
-    if (!$form || !$form.length) {
-      return;
+  function isUnlinkHref(href) {
+    if (!href) {
+      return false;
     }
 
-    var snapshot = {};
+    return href.indexOf("unlink_") !== -1
+      || href.indexOf("delete_ticket_additional_asset=") !== -1;
+  }
 
-    if ($form.find('[name="connected_to"]').length) {
-      snapshot.connected_to = getSelectedValues($form, "connected_to");
-    }
-    if ($form.find('[name="assets[]"]').length) {
-      snapshot["assets[]"] = getSelectedValues($form, "assets[]");
-    }
-    if ($form.find('[name="additional_assets[]"]').length) {
-      snapshot["additional_assets[]"] = getSelectedValues($form, "additional_assets[]");
+  function isDocumentUnlinkHref(href) {
+    if (!href) {
+      return false;
     }
 
-    if (Object.keys(snapshot).length) {
-      $form.data("initial-asset-links", snapshot);
+    return href.indexOf("_from_document") !== -1
+      || (href.indexOf("unlink_") !== -1 && href.indexOf("document") !== -1);
+  }
+
+  function isAssetUnlinkHref(href) {
+    if (!href) {
+      return false;
     }
-  };
+
+    return href.indexOf("delete_ticket_additional_asset=") !== -1
+      || (href.indexOf("unlink_") !== -1 && href.indexOf("asset") !== -1);
+  }
+
+  function getConfirmMessageForHref(href) {
+    if (isDocumentUnlinkHref(href)) {
+      return documentUnlinkMessage;
+    }
+    if (isAssetUnlinkHref(href)) {
+      return assetUnlinkMessage;
+    }
+    if (href.indexOf("unlink_") !== -1) {
+      return itemUnlinkMessage;
+    }
+    return defaultConfirmMessage;
+  }
 
   function getSelectedValues($form, fieldName) {
     var values = [];
@@ -72,15 +98,38 @@ $(document).ready(function() {
     });
   }
 
-  function formIsRemovingAssetLinks($form) {
-    var initial = $form.data("initial-asset-links");
-    if (!initial) {
-      return false;
+  function captureFormLinkSnapshot($form) {
+    if (!$form || !$form.length) {
+      return;
     }
 
-    for (var fieldName in initial) {
+    var snapshot = {};
+
+    linkFieldNames.forEach(function(fieldName) {
+      if ($form.find('[name="' + fieldName + '"]').length) {
+        snapshot[fieldName] = getSelectedValues($form, fieldName);
+      }
+    });
+
+    if (Object.keys(snapshot).length) {
+      $form.data("initial-link-snapshot", snapshot);
+    }
+  }
+
+  window.captureFormAssetLinks = captureFormLinkSnapshot;
+  window.captureFormLinks = captureFormLinkSnapshot;
+
+  function getRemovedLinkFieldNames($form) {
+    var initial = $form.data("initial-link-snapshot");
+    var removed = [];
+
+    if (!initial) {
+      return removed;
+    }
+
+    linkFieldNames.forEach(function(fieldName) {
       if (!Object.prototype.hasOwnProperty.call(initial, fieldName)) {
-        continue;
+        return;
       }
 
       var initialValues = initial[fieldName] || [];
@@ -88,68 +137,81 @@ $(document).ready(function() {
 
       for (var i = 0; i < initialValues.length; i++) {
         if (currentValues.indexOf(String(initialValues[i])) === -1) {
-          return true;
+          removed.push(fieldName);
+          break;
         }
       }
-    }
+    });
 
-    return false;
+    return removed;
   }
 
-  function isAssetUnlinkHref(href) {
-    if (!href) {
-      return false;
+  function getConfirmMessageForRemovedLinks(removedFieldNames) {
+    if (removedFieldNames.indexOf("documents[]") !== -1) {
+      return documentUnlinkMessage;
     }
-
-    return href.indexOf("delete_ticket_additional_asset=") !== -1
-      || (href.indexOf("unlink_") !== -1 && href.indexOf("asset") !== -1);
-  }
-
-  function getConfirmMessageForHref(href) {
-    if (isAssetUnlinkHref(href)) {
+    if (removedFieldNames.indexOf("assets[]") !== -1 || removedFieldNames.indexOf("additional_assets[]") !== -1 || removedFieldNames.indexOf("connected_to") !== -1) {
       return assetUnlinkMessage;
     }
-    if (href.indexOf("unlink_") !== -1) {
-      return itemUnlinkMessage;
-    }
-    return defaultConfirmMessage;
+    return itemUnlinkMessage;
   }
 
-  $(document).on("click", "a.confirm-link, a[href*=\"unlink_\"], a[href*=\"delete_ticket_additional_asset=\"]", function(e) {
-    e.preventDefault();
+  function formIsRemovingLinks($form) {
+    return getRemovedLinkFieldNames($form).length > 0;
+  }
 
-    var linkReference = this;
-    var href = $(linkReference).attr("href") || "";
+  document.addEventListener("click", function(e) {
+    var anchor = e.target.closest("a[href]");
+    if (!anchor) {
+      return;
+    }
+
+    var href = anchor.getAttribute("href") || "";
+    if (!href || href === "#") {
+      return;
+    }
+
+    var needsConfirm = anchor.classList.contains("confirm-link") || isUnlinkHref(href);
+    if (!needsConfirm) {
+      return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
 
     showConfirmationModal(getConfirmMessageForHref(href), function() {
       window.location.href = href;
     });
-  });
+  }, true);
 
-  $(document).on("focusin", "form:has([name=\"assets[]\"], [name=\"additional_assets[]\"], [name=\"connected_to\"])", function() {
+  var formSelector = "form:has([name=\"assets[]\"], [name=\"additional_assets[]\"], [name=\"connected_to\"], [name=\"documents[]\"])";
+
+  $(document).on("focusin", formSelector, function() {
     var $form = $(this);
-    if (!$form.data("initial-asset-links")) {
-      window.captureFormAssetLinks($form);
+    if (!$form.data("initial-link-snapshot")) {
+      captureFormLinkSnapshot($form);
     }
   });
 
-  $(document).on("submit", "form:has([name=\"assets[]\"], [name=\"additional_assets[]\"], [name=\"connected_to\"])", function(e) {
+  $(document).on("submit", formSelector, function(e) {
     var $form = $(this);
 
-    if ($form.data("asset-unlink-confirmed")) {
-      $form.removeData("asset-unlink-confirmed");
+    if ($form.data("link-removal-confirmed")) {
+      $form.removeData("link-removal-confirmed");
       return true;
     }
 
-    if (!$form.data("initial-asset-links")) {
-      window.captureFormAssetLinks($form);
+    if (!$form.data("initial-link-snapshot")) {
+      captureFormLinkSnapshot($form);
     }
 
-    if (formIsRemovingAssetLinks($form)) {
+    var removedFieldNames = getRemovedLinkFieldNames($form);
+    if (removedFieldNames.length) {
       e.preventDefault();
 
-      showConfirmationModal(assetUnlinkMessage, function() {
-        $form.data("asset-unlink-confirmed", true);
+      showConfirmationModal(getConfirmMessageForRemovedLinks(removedFieldNames), function() {
+        $form.data("link-removal-confirmed", true);
         $form.trigger("submit");
       });
     }

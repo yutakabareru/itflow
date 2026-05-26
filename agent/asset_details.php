@@ -892,7 +892,7 @@ if (isset($_GET['asset_id'])) {
                                                 data-modal-url="modals/document/document_view.php?id=<?= $document_id ?>">
                                                 <i class="fas fa-fw fa-eye"></i>
                                             </a>
-                                            <a href="post.php?unlink_asset_from_document&asset_id=<?= $asset_id; ?>&document_id=<?= $document_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                            <a href="post.php?unlink_asset_from_document&asset_id=<?= $asset_id; ?>&document_id=<?= $document_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-sm confirm-link" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
                                         </td>
                                     </tr>
 

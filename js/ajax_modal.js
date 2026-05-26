@@ -51,8 +51,8 @@ $(document).on('click', '.ajax-modal', function (e) {
       $modal.on('shown.bs.modal', function () {
         window.setTimeout(function () {
           $modal.find('form').each(function () {
-            if (typeof window.captureFormAssetLinks === 'function') {
-              window.captureFormAssetLinks($(this));
+            if (typeof window.captureFormLinks === 'function') {
+              window.captureFormLinks($(this));
             }
           });
         }, 100);
