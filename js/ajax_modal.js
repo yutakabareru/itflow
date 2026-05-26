@@ -48,6 +48,16 @@ $(document).on('click', '.ajax-modal', function (e) {
       const $modal = $('#' + modalId);
       $modal.modal('show');
 
+      $modal.on('shown.bs.modal', function () {
+        window.setTimeout(function () {
+          $modal.find('form').each(function () {
+            if (typeof window.captureFormAssetLinks === 'function') {
+              window.captureFormAssetLinks($(this));
+            }
+          });
+        }, 100);
+      });
+
       $modal.on('hidden.bs.modal', function () {
         $(this).remove();
       });

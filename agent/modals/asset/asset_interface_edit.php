@@ -70,7 +70,7 @@ ob_start();
         <span>&times;</span>
     </button>
 </div>
-<form action="post.php" method="post" autocomplete="off" data-linked-interface-id="<?php echo intval($linked_interface_id ?? 0); ?>">
+<form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
     <input type="hidden" name="interface_id" value="<?php echo $interface_id; ?>">
 
