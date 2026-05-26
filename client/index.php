@@ -169,9 +169,11 @@ $sql_assigned_assets = mysqli_query(
 
 ?>
 <div class="row">
+    <?php if ($config_module_enable_ticketing == 1) { ?>
     <div class="col-md-2">
         <a href="ticket_add.php" class="btn btn-primary btn-block mb-3">New ticket</a>
     </div>
+    <?php } ?>
 </div>
 <?php
 // Billing Cards

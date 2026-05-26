@@ -184,9 +184,11 @@ if (isset($_GET['project_id'])) {
                             <i class="fas fa-fw fa-plus mr-2"></i>New
                         </button>
                         <div class="dropdown-menu">
+                            <?php if ($config_module_enable_ticketing == 1) { ?>
                             <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add.php?<?= $client_url ?>&project_id=<?= $project_id ?>" data-modal-size="lg">
                             <i class="fa fa-fw fa-life-ring mr-2"></i>Ticket
                         </a>
+                            <?php } ?>
                         </div>
                     </div>
                     <div class="dropdown">

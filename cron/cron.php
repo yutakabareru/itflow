@@ -293,6 +293,7 @@ if ($tickets_pending_assignment > 0) {
 }
 
 // Recurring tickets
+if (isModuleEnabled('ticketing')) {
 
 // Get recurring tickets for today
 $sql_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_next_run = CURDATE()");
@@ -451,6 +452,8 @@ $sql_invalid_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_
 while ($row = mysqli_fetch_assoc($sql_invalid_recurring_tickets)) {
     $subject = sanitizeInput($row['recurring_ticket_subject']);
     appNotify("Ticket", "Recurring ticket $subject next run date is in the past!", "/agent/recurring_tickets.php");
+}
+
 }
 
 // Logging

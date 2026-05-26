@@ -44,6 +44,11 @@ if ($config_ticket_email_parse == 0) {
     exit("Email Parser: Feature is not enabled - check Settings > Ticketing > Email-to-ticket parsing. See https://docs.itflow.org/ticket_email_parse  -- Quitting..");
 }
 
+if (!isModuleEnabled('ticketing')) {
+    logApp("Cron-Email-Parser", "error", "Cron Email Parser unable to run - ticketing module is disabled.");
+    exit("Email Parser: Ticketing module is disabled -- Quitting..");
+}
+
 // System temp directory & lock
 $temp_dir = sys_get_temp_dir();
 $lock_file_path = "{$temp_dir}/itflow_email_parser_{$installation_id}.lock";

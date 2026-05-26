@@ -7,6 +7,8 @@ require_once '../require_post_method.php';
 // Ticket-related settings
 require_once "../../../includes/load_global_settings.php";
 
+enforceModuleEnabled('ticketing', 'api');
+
 $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
 $row = mysqli_fetch_assoc($sql);
 $company_name = $row['company_name'];

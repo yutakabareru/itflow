@@ -11,6 +11,7 @@ if (isset($_POST['add_recurring_ticket'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_support', 2);
+    enforceModuleEnabled('ticketing');
 
     require_once 'recurring_ticket_model.php';
 
@@ -79,6 +80,7 @@ if (isset($_POST['bulk_force_recurring_tickets'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_support', 2);
+    enforceModuleEnabled('ticketing');
 
     if (isset($_POST['recurring_ticket_ids'])) {
 
@@ -223,6 +225,7 @@ if (isset($_GET['force_recurring_ticket'])) {
     validateCSRFToken($_GET['csrf_token']);
 
     enforceUserPermission('module_support', 2);
+    enforceModuleEnabled('ticketing');
 
     $recurring_ticket_id = intval($_GET['force_recurring_ticket']);
 

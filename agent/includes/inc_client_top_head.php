@@ -13,7 +13,7 @@
                     <i class="fas fa-fw fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu">
-                    <?php if (lookupUserPermission("module_support") >= 2) { ?>
+                    <?php if (lookupUserPermission("module_support") >= 2 && $config_module_enable_ticketing == 1) { ?>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add_v2.php?client_id=<?= $client_id ?>" data-modal-size="lg">
                             <i class="fas fa-fw fa-life-ring mr-2"></i>New Ticket
                         </a>

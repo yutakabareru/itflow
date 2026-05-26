@@ -11,6 +11,7 @@ if (isset($_POST['add_ticket'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_support', 2);
+    enforceModuleEnabled('ticketing');
 
     $client_id = intval($_POST['client_id']);
     $assigned_to = intval($_POST['assigned_to']);
@@ -1608,6 +1609,7 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_support', 2);
+    enforceModuleEnabled('ticketing');
 
     $assigned_to = intval($_POST['bulk_assigned_to']);
     if ($assigned_to == 0) {

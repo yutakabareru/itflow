@@ -46,7 +46,9 @@ header("X-Frame-Options: DENY"); // Legacy
                     <a class="nav-link" href="/client/index.php">Home</a>
                 </li>
                 <li class="nav-item">
+                    <?php if ($config_module_enable_ticketing == 1) { ?>
                     <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "tickets.php" || basename($_SERVER['PHP_SELF']) == "ticket_add.php" || basename($_SERVER['PHP_SELF']) == "ticket.php") {echo "active";} ?>" href="/client/tickets.php">Tickets</a>
+                    <?php } ?>
                 </li>
 
                 <?php if (($session_contact_primary == 1 || $session_contact_is_billing_contact) && $config_module_enable_accounting == 1) { ?>

@@ -139,6 +139,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-fw fa-layer-group"></i><span class="d-none d-sm-inline ml-2">Action</span> (<span id="selectedCount">0</span>)
                                 </button>
                                 <div class="dropdown-menu">
+                                   <?php if ($config_module_enable_ticketing == 1) { ?>
                                    <a class="dropdown-item ajax-modal" href="#"
                                         data-modal-url="modals/client/client_bulk_add_ticket.php"
                                         data-modal-size="lg"
@@ -146,6 +147,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-fw fa-life-ring mr-2"></i>Open Tickets
                                     </a>
                                     <div class="dropdown-divider"></div>
+                                   <?php } ?>
                                     <a class="dropdown-item ajax-modal" href="#"
                                         data-modal-url="modals/client/client_bulk_edit_hourly_rate.php"
                                         data-bulk="true">

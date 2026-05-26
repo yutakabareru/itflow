@@ -29,7 +29,7 @@ function printHelp() {
     echo "Options:\n";
     echo "  --help          Show this help message.\n";
     echo "  --update        Perform a git pull to update the application.\n";
-    echo "  --force_update  Perform a git fetch and hard reset to origin/master.\n";
+    echo "  --force_update  Perform a git fetch and hard reset to origin/<configured branch>.\n";
     echo "  --update_db     Update the database structure to the latest version.\n";
     echo "\nIf no options are provided, a standard update (git pull) is performed.\n";
 }
@@ -81,15 +81,13 @@ if (count($options) === 0) {
 
 // If "update" or "force_update" is requested
 if (isset($options['update']) || isset($options['force_update'])) {
+    $update_result = performGitUpdate(isset($options['force_update']));
+    $output = $update_result['output'];
+    $return_var = $update_result['result'];
+
     if (isset($options['force_update'])) {
-        // Perform a hard reset
-        exec("git fetch --all 2>&1", $output, $return_var);
-        exec("git reset --hard origin/master 2>&1", $output2, $return_var2);
-        echo implode("\n", $output) . "\n" . implode("\n", $output2) . "\n";
+        echo implode("\n", $output) . "\n";
     } else {
-        // Perform a standard update (git pull)
-        exec("git pull 2>&1", $output, $return_var);
-        
         // Check if the repository is already up to date
         if (strpos(implode("\n", $output), 'Already up to date.') === false) {
             echo implode("\n", $output) . "\n";

@@ -53,11 +53,13 @@
 ## Getting Started
 
 ### Self Hosting
-- The best installation method is to use the [install script](https://docs.itflow.org/installation_script) on Ubuntu/Debian. A video walk through is available [here](https://www.youtube.com/watch?v=kKz9NOU_1XE).
+- The best installation method is to use the install script on Ubuntu/Debian.
 ```
-  wget -O itflow_install.sh https://github.com/itflow-org/itflow-install-script/raw/main/itflow_install.sh
+  wget -O itflow_install.sh https://github.com/yutakabareru/itflow/raw/Custom/scripts/itflow_install.sh
   bash itflow_install.sh
 ```
+- During installation you can choose the git repository and branch. Defaults are `https://github.com/yutakabareru/itflow.git` and `Custom`.
+- The same repository and branch are used for in-app and CLI updates.
 - Other manual installation methods are available in the [docs](https://docs.itflow.org/installation).
 
 ### Managed Hosting

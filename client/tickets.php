@@ -85,9 +85,11 @@ $total_tickets = intval($row['total_tickets']);
 
     <div class="col-md-2">
 
+        <?php if ($config_module_enable_ticketing == 1) { ?>
         <a href="ticket_add.php" class="btn btn-primary btn-block">New ticket</a>
 
         <hr>
+        <?php } ?>
 
         <a href="?status=Open" class="btn btn-danger btn-block p-3 mb-3 text-left">My Open tickets | <strong><?php echo $total_tickets_open ?></strong></a>
 

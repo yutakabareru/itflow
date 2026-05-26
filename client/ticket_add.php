@@ -6,6 +6,11 @@
 
 require_once 'includes/inc_all.php';
 
+if (!$config_module_enable_ticketing) {
+    flash_alert('Ticketing is disabled.', 'error');
+    redirect('index.php');
+}
+
 // Allow clients to select a related asset when raising a ticket
 $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type FROM assets WHERE asset_contact_id = $session_contact_id AND asset_client_id = $session_client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
 

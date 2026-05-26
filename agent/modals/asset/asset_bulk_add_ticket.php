@@ -1,6 +1,7 @@
 <?php
 
 require_once '../../../includes/modal_header.php';
+require_once '../../../includes/enforce_ticketing_enabled.php';
 
 $asset_ids = array_map('intval', $_GET['asset_ids'] ?? []);
 

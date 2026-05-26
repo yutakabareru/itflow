@@ -43,7 +43,7 @@ if (isset($_POST['add_project'])) {
     $project_id = mysqli_insert_id($mysqli);
 
     // If project template is selected add Ticket Templates and convert them to real tickets
-    if($project_template_id) {
+    if($project_template_id && isModuleEnabled('ticketing')) {
          // Get Associated Ticket Templates
         $sql_ticket_templates = mysqli_query($mysqli, "SELECT * FROM ticket_templates, project_template_ticket_templates
             WHERE ticket_templates.ticket_template_id = project_template_ticket_templates.ticket_template_id

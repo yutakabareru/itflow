@@ -13,6 +13,7 @@ require_once 'functions.php';
 if (isset($_POST['add_ticket'])) {
 
     validateCSRFToken($_POST['csrf_token']);
+    enforceModuleEnabled('ticketing');
 
     $subject = sanitizeInput($_POST['subject']);
     $details = mysqli_real_escape_string($mysqli, ($_POST['details']));

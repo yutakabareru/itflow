@@ -7,6 +7,7 @@ if (file_exists("../config.php")) {
 
 include "../functions.php"; // Global Functions
 include "../includes/database_version.php";
+include "../includes/repo_config.php";
 
 if (!isset($config_enable_setup)) {
     $config_enable_setup = 1;
@@ -55,12 +56,22 @@ if (isset($_POST['add_database'])) {
     $username = filter_var(trim($_POST['username']), FILTER_SANITIZE_STRING);
     $password = filter_var(trim($_POST['password']), FILTER_SANITIZE_STRING);
     $config_base_url = $_SERVER['HTTP_HOST'];
+    $repo_url = normalizeRepoUrl(trim($_POST['repo_url'] ?? ITFLOW_DEFAULT_REPO_URL));
+    $repo_branch = trim($_POST['repo_branch'] ?? ITFLOW_DEFAULT_REPO_BRANCH);
 
     $installation_id = randomString(32);
 
     // Ensure variables meet specific criteria (very basic examples)
     if (!preg_match('/^[a-zA-Z0-9.-]+$/', $host)) {
         die('Invalid host format.');
+    }
+
+    if (!validateRepoUrl($repo_url)) {
+        die('Invalid git repository URL.');
+    }
+
+    if (!validateRepoBranch($repo_branch)) {
+        die('Invalid git branch name.');
     }
 
     // Test database connection before writing it to config.php
@@ -79,7 +90,8 @@ if (isset($_POST['add_database'])) {
     $new_config .= "\$config_app_name = 'ITFlow';\n";
     $new_config .= sprintf("\$config_base_url = '%s';\n", addslashes($config_base_url));
     $new_config .= "\$config_https_only = TRUE;\n";
-    $new_config .= "\$repo_branch = 'master';\n";
+    $new_config .= "\$repo_url = " . var_export($repo_url, true) . ";\n";
+    $new_config .= "\$repo_branch = " . var_export($repo_branch, true) . ";\n";
     $new_config .= "\$installation_id = '$installation_id';\n";
 
     if (file_put_contents("../config.php", $new_config) !== false && file_exists('../config.php')) {
@@ -545,9 +557,6 @@ if (isset($_POST['add_company_settings'])) {
     mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'Check'");
     mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'Bank Transfer'");
     mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'Credit Card'");
-
-    // Default Calendar
-    mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue'");
 
     // Add default ticket statuses
     mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'New', ticket_status_color = '#dc3545'"); // Default ID for new tickets is 1
@@ -1225,6 +1234,31 @@ if (isset($_POST['add_telemetry'])) {
                                                 <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                                             </div>
                                         </div>
+                                    </div>
+
+                                    <br>
+                                    <h5>Update Source</h5>
+                                    <p class="text-muted">This repository and branch are used when checking for and applying application updates.</p>
+
+                                    <div class="form-group">
+                                        <label>Git Repository URL <strong class="text-danger">*</strong></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fab fa-fw fa-github"></i></span>
+                                            </div>
+                                            <input type="url" class="form-control" name="repo_url" value="<?php echo htmlentities(ITFLOW_DEFAULT_REPO_URL); ?>" placeholder="https://github.com/your-account/itflow.git" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Git Branch <strong class="text-danger">*</strong></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-code-branch"></i></span>
+                                            </div>
+                                            <input type="text" class="form-control" name="repo_branch" value="<?php echo htmlentities(ITFLOW_DEFAULT_REPO_BRANCH); ?>" placeholder="Custom" required>
+                                        </div>
+                                        <small class="form-text text-muted">Common options: Custom, master, develop</small>
                                     </div>
 
                                     <hr>

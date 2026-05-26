@@ -269,6 +269,7 @@ if (isset($_GET['contact_id'])) {
                 <div class="dropdown dropleft mr-2">
                     <button type="button" class="btn btn-primary" data-toggle="dropdown"><i class="fas fa-plus mr-2"></i>New</button>
                     <div class="dropdown-menu">
+                        <?php if ($config_module_enable_ticketing == 1) { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>" data-modal-size="lg">
                             <i class="fa fa-fw fa-life-ring mr-2"></i>New Ticket
                         </a>
@@ -277,6 +278,7 @@ if (isset($_GET['contact_id'])) {
                             <i class="fa fa-fw fa-recycle mr-2"></i>New Recurring Ticket
                         </a>
                         <div class="dropdown-divider"></div>
+                        <?php } ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/asset/asset_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
                             <i class="fa fa-fw fa-desktop mr-2"></i>New Asset
                         </a>
@@ -803,11 +805,13 @@ if (isset($_GET['contact_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring mr-2"></i>Related Tickets</h3>
                     <div class="card-tools">
+                        <?php if ($config_module_enable_ticketing == 1) { ?>
                         <button type="button" class="btn btn-primary ajax-modal"
                             data-modal-url="modals/ticket/ticket_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>"
                             data-modal-size="lg">
                             <i class="fas fa-plus mr-2"></i>New Ticket
                         </button>
+                        <?php } ?>
                     </div>
                 </div>
                 <div class="card-body">

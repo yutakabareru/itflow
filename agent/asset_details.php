@@ -397,6 +397,7 @@ if (isset($_GET['asset_id'])) {
                     <div class="dropdown dropleft mr-2">
                         <button type="button" class="btn btn-primary" data-toggle="dropdown"><i class="fas fa-plus mr-2"></i>New</button>
                         <div class="dropdown-menu">
+                            <?php if ($config_module_enable_ticketing == 1) { ?>
                             <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>" data-modal-size="lg">
                                 <i class="fa fa-fw fa-life-ring mr-2"></i>New Ticket
                             </a>
@@ -405,6 +406,7 @@ if (isset($_GET['asset_id'])) {
                                 <i class="fa fa-fw fa-recycle mr-2"></i>New Recurring Ticket
                             </a>
                             <div class="dropdown-divider"></div>
+                            <?php } ?>
                             <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>asset_id=<?= $asset_id ?>">
                                 <i class="fa fa-fw fa-key mr-2"></i>New Credential
                             </a>

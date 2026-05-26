@@ -1181,14 +1181,70 @@ function getTicketStatusName($ticket_status) {
 }
 
 
-function fetchUpdates() {
+function ensureGitRemote() {
+
+    global $repo_url;
+
+    if (empty($repo_url)) {
+        return;
+    }
+
+    $escaped_url = escapeshellarg($repo_url);
+    exec("git remote get-url origin 2>/dev/null", $output, $result);
+
+    if ($result !== 0) {
+        exec("git remote add origin $escaped_url 2>&1");
+        return;
+    }
+
+    $current_url = trim(implode("\n", $output));
+    if ($current_url !== $repo_url) {
+        exec("git remote set-url origin $escaped_url 2>&1");
+    }
+
+}
+
+function performGitUpdate($force_update = false) {
 
     global $repo_branch;
 
+    if (empty($repo_branch)) {
+        $repo_branch = 'master';
+    }
+
+    ensureGitRemote();
+
+    $branch = escapeshellarg($repo_branch);
+    exec("git fetch origin 2>&1", $output, $result);
+    exec("git checkout $branch 2>&1", $checkout_output, $checkout_result);
+
+    if ($force_update) {
+        exec("git reset --hard origin/$repo_branch 2>&1", $update_output, $update_result);
+    } else {
+        exec("git pull origin $branch 2>&1", $update_output, $update_result);
+    }
+
+    return [
+        'output' => array_merge($output, $checkout_output, $update_output),
+        'result' => $update_result
+    ];
+
+}
+
+function fetchUpdates() {
+
+    global $repo_branch, $repo_url;
+
+    if (empty($repo_branch)) {
+        $repo_branch = 'master';
+    }
+
+    ensureGitRemote();
+
     // Fetch the latest code changes but don't apply them
-    exec("git fetch", $output, $result);
-    $latest_version = exec("git rev-parse origin/$repo_branch");
-    $current_version = exec("git rev-parse HEAD");
+    exec("git fetch origin 2>&1", $output, $result);
+    $latest_version = exec("git rev-parse origin/$repo_branch 2>&1");
+    $current_version = exec("git rev-parse HEAD 2>&1");
 
     if ($current_version == $latest_version) {
         $update_message = "No Updates available";
@@ -1376,6 +1432,65 @@ function lookupUserPermission($module) {
 }
 
 // Ensures a user has access to a module (e.g. module_support) with at least the required permission level provided (defaults to read)
+function loadModuleSettingsIfNeeded() {
+    global $config_module_enable_itdoc, $config_module_enable_ticketing, $config_module_enable_accounting, $mysqli;
+
+    if (isset($config_module_enable_ticketing) || !isset($mysqli)) {
+        return;
+    }
+
+    $result = mysqli_query($mysqli, "SELECT config_module_enable_itdoc, config_module_enable_ticketing, config_module_enable_accounting FROM settings WHERE company_id = 1 LIMIT 1");
+    if ($result && $row = mysqli_fetch_assoc($result)) {
+        $config_module_enable_itdoc = intval($row['config_module_enable_itdoc']);
+        $config_module_enable_ticketing = intval($row['config_module_enable_ticketing']);
+        $config_module_enable_accounting = intval($row['config_module_enable_accounting']);
+    }
+}
+
+function isModuleEnabled($module) {
+    loadModuleSettingsIfNeeded();
+
+    global $config_module_enable_itdoc, $config_module_enable_ticketing, $config_module_enable_accounting;
+
+    return match ($module) {
+        'ticketing' => !empty($config_module_enable_ticketing),
+        'itdoc' => !empty($config_module_enable_itdoc),
+        'accounting' => !empty($config_module_enable_accounting),
+        default => false,
+    };
+}
+
+function enforceModuleEnabled($module, $mode = 'web') {
+    if (isModuleEnabled($module)) {
+        return true;
+    }
+
+    $message = match ($module) {
+        'ticketing' => 'Ticketing is disabled in module settings.',
+        'itdoc' => 'Documentation is disabled in module settings.',
+        'accounting' => 'Accounting is disabled in module settings.',
+        default => 'This module is disabled in module settings.',
+    };
+
+    switch ($mode) {
+        case 'json':
+            echo json_encode(['error' => $message]);
+            exit;
+        case 'api':
+            global $return_arr;
+            $return_arr['success'] = 'False';
+            $return_arr['message'] = $message;
+            echo json_encode($return_arr);
+            exit;
+        case 'cli':
+            echo $message . PHP_EOL;
+            exit(1);
+        default:
+            flash_alert($message, 'error');
+            redirect();
+    }
+}
+
 function enforceUserPermission($module, $check_access_level = 1) {
     $permitted_access_level = lookupUserPermission($module);
 

@@ -776,6 +776,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_support', 2);
+    enforceModuleEnabled('ticketing');
 
     $assigned_to = intval($_POST['bulk_assigned_to']);
     if ($assigned_to == 0) {

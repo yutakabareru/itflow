@@ -67,6 +67,8 @@ $longopts = [
     "user-name:",
     "user-email:",
     "user-password:",
+    "repo-url::",
+    "repo-branch::",
     "non-interactive"
 ];
 
@@ -84,6 +86,8 @@ if (isset($options['help'])) {
     foreach ($optional_args as $arg => $desc) {
         echo "  --$arg\t$desc\n";
     }
+    echo "  --repo-url\t\tGit repository URL for updates (default: " . ITFLOW_DEFAULT_REPO_URL . ")\n";
+    echo "  --repo-branch\t\tGit branch for updates (default: " . ITFLOW_DEFAULT_REPO_BRANCH . ")\n";
     echo "  --non-interactive\tRun in non-interactive mode (fail if required args missing)\n";
     echo "  --help\t\tShow this help message\n\n";
     echo "If running interactively (without --non-interactive), any missing required arguments will be prompted.\n";
@@ -97,6 +101,7 @@ if (file_exists("../config.php")) {
 
 require_once "../functions.php";
 require_once "../includes/database_version.php";
+require_once "../includes/repo_config.php";
 
 if (!isset($config_enable_setup)) {
     $config_enable_setup = 1;
@@ -213,6 +218,17 @@ if (!preg_match('/^[a-zA-Z0-9.\-\/]+$/', $host)) {
     die("Invalid host format.\n");
 }
 
+$repo_url = normalizeRepoUrl(getOptionOrPrompt('repo-url', "Git repository URL", false, ITFLOW_DEFAULT_REPO_URL) ?: ITFLOW_DEFAULT_REPO_URL);
+$repo_branch = getOptionOrPrompt('repo-branch', "Git branch for updates", false, ITFLOW_DEFAULT_REPO_BRANCH) ?: ITFLOW_DEFAULT_REPO_BRANCH;
+
+if (!validateRepoUrl($repo_url)) {
+    die("Invalid git repository URL.\n");
+}
+
+if (!validateRepoBranch($repo_branch)) {
+    die("Invalid git branch name.\n");
+}
+
 // Test Database
 $conn = @mysqli_connect($host, $username, $password, $database);
 if (!$conn) {
@@ -230,7 +246,8 @@ $new_config .= "\$mysqli = mysqli_connect(\$dbhost, \$dbusername, \$dbpassword, 
 $new_config .= "\$config_app_name = 'ITFlow';\n";
 $new_config .= "\$config_base_url = '" . addslashes($base_url) . "';\n";
 $new_config .= "\$config_https_only = TRUE;\n";
-$new_config .= "\$repo_branch = 'master';\n";
+$new_config .= "\$repo_url = " . var_export($repo_url, true) . ";\n";
+$new_config .= "\$repo_branch = " . var_export($repo_branch, true) . ";\n";
 $new_config .= "\$installation_id = '$installation_id';\n";
 
 if (file_put_contents("../config.php", $new_config) === false) {
@@ -291,9 +308,6 @@ mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'Cas
 mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'Check'");
 mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'ACH'");
 mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'Credit Card'");
-
-// Calendar
-mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue'");
 
 // Ticket Statuses
 mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'New', ticket_status_color = '#dc3545'");

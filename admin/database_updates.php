@@ -15,6 +15,8 @@ if (!defined("LATEST_DATABASE_VERSION") || !defined("CURRENT_DATABASE_VERSION") 
 // Check if we need an update
 if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
+    require_once __DIR__ . '/../includes/repo_config.php';
+
     // We need updates!
 
     if (CURRENT_DATABASE_VERSION == '0.2.0') {
@@ -113,7 +115,8 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "ALTER TABLE `contacts` ADD `contact_token_expire` DATETIME NULL DEFAULT NULL AFTER `contact_password_reset_token`");
 
         // Update config.php var with new version var for use with docker
-        file_put_contents("config.php", "\$repo_branch = 'master';" . PHP_EOL, FILE_APPEND);
+        file_put_contents("config.php", "\$repo_url = '" . ITFLOW_DEFAULT_REPO_URL . "';" . PHP_EOL, FILE_APPEND);
+        file_put_contents("config.php", "\$repo_branch = '" . ITFLOW_DEFAULT_REPO_BRANCH . "';" . PHP_EOL, FILE_APPEND);
 
 
         // Then, update the database to the next sequential version

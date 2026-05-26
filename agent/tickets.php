@@ -173,7 +173,7 @@ $sql_categories_filter = mysqli_query(
                     <a href="?<?= $client_url ?>status=Closed" class="badge badge-pill text-light p-1 <?php if($status == 'Closed') { echo "badge-light text-dark"; } ?>"><strong><?= $total_tickets_closed ?></strong> Closed</a>
                 </small>
             </h3>
-            <?php if (lookupUserPermission("module_support") >= 2) { ?>
+            <?php if (lookupUserPermission("module_support") >= 2 && $config_module_enable_ticketing == 1) { ?>
                 <div class="card-tools">
                     <div class="btn-group">
                         <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/ticket/ticket_add_v2.php?<?= $client_url ?>" data-modal-size="lg">

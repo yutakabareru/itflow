@@ -1,6 +1,7 @@
 <?php
 
 require_once '../../../includes/modal_header.php';
+require_once '../../../includes/enforce_ticketing_enabled.php';
 
 $client_ids = array_map('intval', $_GET['client_ids'] ?? []);
 

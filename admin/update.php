@@ -1,7 +1,16 @@
 <?php
 require_once "includes/inc_all_admin.php";
+require_once "../includes/repo_config.php";
 
 require_once "../includes/database_version.php";
+
+if (empty($repo_url)) {
+    $repo_url = ITFLOW_DEFAULT_REPO_URL;
+}
+
+if (empty($repo_branch)) {
+    $repo_branch = ITFLOW_DEFAULT_REPO_BRANCH;
+}
 
 $updates = fetchUpdates();
 
@@ -10,6 +19,7 @@ $current_version = $updates->current_version;
 $result = $updates->result;
 
 $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format:'<tr><td>%h</td><td>%ar</td><td>%s</td></tr>'");
+$changelog_url = preg_replace('/\.git$/', '', $repo_url) . "/blob/$repo_branch/CHANGELOG.md";
 
 ?>
 
@@ -18,6 +28,12 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
             <h3 class="card-title"><i class="fas fa-fw fa-download mr-2"></i>Update</h3>
         </div>
         <div class="card-body" style="text-align: center;">
+
+            <p class="text-muted mb-4">
+                Update source:
+                <strong><?php echo nullable_htmlentities($repo_url); ?></strong>
+                (branch <strong><?php echo nullable_htmlentities($repo_branch); ?></strong>)
+            </p>
 
             <!-- Check if git fetch result was successful (0), if not show a warning -->
             <?php if ($result !== 0) { ?>
@@ -35,7 +51,7 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
                 <div class="alert alert-danger">
                     <h1 class="font-weight-bold text-center">⚠️ DANGER ⚠️</h1>
                     <h2 class="font-weight-bold text-center">Do NOT run updates without first taking a backup</h2>
-                    <p>VM Snapshots are highly recommended over other methods - see the <a href="https://docs.itflow.org/backups" class="alert-link" target="_blank">docs</a>. Review the <a href="https://github.com/itflow-org/itflow/blob/master/CHANGELOG.md" class="alert-link" target="_blank">changelog</a> for breaking changes that may require manual remediation.</p>
+                    <p>VM Snapshots are highly recommended over other methods - see the <a href="https://docs.itflow.org/backups" class="alert-link" target="_blank">docs</a>. Review the <a href="<?php echo nullable_htmlentities($changelog_url); ?>" class="alert-link" target="_blank">changelog</a> for breaking changes that may require manual remediation.</p>
                     <p class="text-center font-weight-bold">Ignore this warning at your own risk.</p>
                 </div>
                 <br>
@@ -52,7 +68,7 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
                     <div class="alert alert-danger">
                         <h1 class="font-weight-bold text-center">⚠️ DANGER ⚠️</h1>
                         <h2 class="font-weight-bold text-center">Do NOT run updates without first taking a backup</h2>
-                        <p>VM Snapshots are highly recommended over other methods - see the <a href="https://docs.itflow.org/backups" class="alert-link" target="_blank">docs</a>. Review the <a href="https://github.com/itflow-org/itflow/blob/master/CHANGELOG.md" class="alert-link" target="_blank">changelog</a> for breaking changes that may require manual remediation.</p>
+                        <p>VM Snapshots are highly recommended over other methods - see the <a href="https://docs.itflow.org/backups" class="alert-link" target="_blank">docs</a>. Review the <a href="<?php echo nullable_htmlentities($changelog_url); ?>" class="alert-link" target="_blank">changelog</a> for breaking changes that may require manual remediation.</p>
                         <p class="text-center font-weight-bold">Ignore this warning at your own risk.</p>
                     </div>
 

@@ -384,6 +384,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-fw fa-info mr-2"></i>Set Status
                                 </a>
                                 <div class="dropdown-divider"></div>
+                                <?php if ($config_module_enable_ticketing == 1) { ?>
                                 <a class="dropdown-item ajax-modal" href="#"
                                     data-modal-url="modals/asset/asset_bulk_add_ticket.php"
                                     data-modal-size="lg"
@@ -391,6 +392,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-fw fa-life-ring mr-2"></i>Create Tickets
                                 </a>
                                 <div class="dropdown-divider"></div>
+                                <?php } ?>
                                 <a class="dropdown-item ajax-modal" href="#"
                                     data-modal-url="modals/asset/asset_bulk_transfer_client.php?<?= $client_url ?>"
                                     data-bulk="true">
