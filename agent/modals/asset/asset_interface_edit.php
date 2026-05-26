@@ -29,9 +29,13 @@ $interface_primary = intval($row['interface_primary']);
 $interface_notes = nullable_htmlentities($row['interface_notes']);
 
 $selected_tagged_network_ids = [];
-$sql_tagged_networks = mysqli_query($mysqli, "SELECT network_id FROM asset_interface_tagged_networks WHERE interface_id = $interface_id");
-while ($tagged_row = mysqli_fetch_assoc($sql_tagged_networks)) {
-    $selected_tagged_network_ids[] = intval($tagged_row['network_id']);
+if (assetInterfaceTaggedNetworksTableExists($mysqli)) {
+    $sql_tagged_networks = mysqli_query($mysqli, "SELECT network_id FROM asset_interface_tagged_networks WHERE interface_id = $interface_id");
+    if ($sql_tagged_networks) {
+        while ($tagged_row = mysqli_fetch_assoc($sql_tagged_networks)) {
+            $selected_tagged_network_ids[] = intval($tagged_row['network_id']);
+        }
+    }
 }
 
 $network_options = [];

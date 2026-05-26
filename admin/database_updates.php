@@ -3348,7 +3348,7 @@ if (version_compare(LATEST_DATABASE_VERSION, CURRENT_DATABASE_VERSION, '>')) {
 
         $tables = [
             'accounts', 'api_keys', 'app_logs', 'asset_credentials', 'asset_custom', 'asset_documents',
-            'asset_files', 'asset_history', 'asset_interface_links', 'asset_interface_tagged_networks', 'asset_interfaces', 'asset_notes', 'assets',
+            'asset_files', 'asset_history', 'asset_interface_links', 'asset_interfaces', 'asset_notes', 'assets',
             'auth_logs', 'budget', 'calendar_event_attendees', 'calendar_events', 'calendars', 'categories',
             'certificate_history', 'certificates', 'client_notes', 'client_stripe', 'client_tags', 'clients',
             'companies', 'contact_assets', 'contact_credentials', 'contact_documents', 'contact_files', 'contact_notes',

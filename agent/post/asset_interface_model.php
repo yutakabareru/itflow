@@ -7,7 +7,7 @@ $description = sanitizeInput($_POST['description']);
 $type = sanitizeInput($_POST['type']);
 $mac = sanitizeInput($_POST['mac']);
 $ip = sanitizeInput($_POST['ip']);
-if ($_POST['dhcp'] == 1){
+if (isset($_POST['dhcp']) && $_POST['dhcp'] == 1){
     $ip = 'DHCP';
 }
 $nat_ip = sanitizeInput($_POST['nat_ip']);

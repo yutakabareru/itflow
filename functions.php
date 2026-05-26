@@ -1181,8 +1181,17 @@ function getTicketStatusName($ticket_status) {
 }
 
 
+function assetInterfaceTaggedNetworksTableExists($mysqli) {
+    $result = mysqli_query($mysqli, "SHOW TABLES LIKE 'asset_interface_tagged_networks'");
+    return $result && mysqli_num_rows($result) > 0;
+}
+
 function saveAssetInterfaceTaggedNetworks($interface_id, $tagged_network_ids, $untagged_network_id = 0) {
     global $mysqli;
+
+    if (!assetInterfaceTaggedNetworksTableExists($mysqli)) {
+        return;
+    }
 
     $interface_id = intval($interface_id);
     $untagged_network_id = intval($untagged_network_id);
@@ -1204,16 +1213,24 @@ function saveAssetInterfaceTaggedNetworks($interface_id, $tagged_network_ids, $u
 function getAssetInterfaceTaggedNetworksDisplay($interface_id) {
     global $mysqli;
 
+    if (!assetInterfaceTaggedNetworksTableExists($mysqli)) {
+        return [];
+    }
+
     $interface_id = intval($interface_id);
     $networks = [];
 
     $sql = mysqli_query($mysqli, "
-        SELECT network_name, network_vlan
+        SELECT networks.network_name, networks.network_vlan
         FROM asset_interface_tagged_networks
-        LEFT JOIN networks ON network_id = asset_interface_tagged_networks.network_id
-        WHERE interface_id = $interface_id
-        ORDER BY network_name ASC
+        LEFT JOIN networks ON networks.network_id = asset_interface_tagged_networks.network_id
+        WHERE asset_interface_tagged_networks.interface_id = $interface_id
+        ORDER BY networks.network_name ASC
     ");
+
+    if (!$sql) {
+        return [];
+    }
 
     while ($row = mysqli_fetch_assoc($sql)) {
         $label = nullable_htmlentities($row['network_name']);
