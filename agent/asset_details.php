@@ -519,7 +519,7 @@ if (isset($_GET['asset_id'])) {
                                         </td>
                                         <th>Name / Port</th>
                                         <th>Type</th>
-                                        <th>Network</th>
+                                        <th>Untagged / Tagged</th>
                                         <th>IP</th>
                                         <th>MAC</th>
                                         <th>Connected To</th>
@@ -541,14 +541,20 @@ if (isset($_GET['asset_id'])) {
                                         $network_id         = intval($row['network_id']);
                                         $network_name       = nullable_htmlentities($row['network_name']);
                                         $interface_notes    = nullable_htmlentities($row['interface_notes']);
+                                        $tagged_networks    = getAssetInterfaceTaggedNetworksDisplay($interface_id);
 
                                         // Prepare display text
                                         $interface_mac_display = $interface_mac ?: '-';
                                         $interface_ip_display  = $interface_ip ?: '-';
                                         $interface_type_display = $interface_type ?: '-';
-                                        $network_name_display  = $network_name
-                                            ? "<i class='fas fa-fw fa-network-wired mr-1'></i>$network_name"
-                                            : '-';
+                                        $network_display_parts = [];
+                                        if ($network_name) {
+                                            $network_display_parts[] = "<span class='badge badge-primary mr-1 mb-1'>Untagged: $network_name</span>";
+                                        }
+                                        foreach ($tagged_networks as $tagged_network_name) {
+                                            $network_display_parts[] = "<span class='badge badge-secondary mr-1 mb-1'>Tagged: $tagged_network_name</span>";
+                                        }
+                                        $network_name_display = $network_display_parts ? implode('', $network_display_parts) : '-';
 
                                         // Connected interface details
                                         $connected_asset_id = intval($row['connected_asset_id']);

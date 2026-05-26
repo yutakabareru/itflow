@@ -6,6 +6,7 @@ $row = mysqli_fetch_assoc($sql_settings);
 
 // Database version
 DEFINE("CURRENT_DATABASE_VERSION", $row['config_current_database_version']);
+DEFINE("CURRENT_FORK_DATABASE_VERSION", intval($row['config_fork_database_version'] ?? 0));
 
 // Microsoft OAuth
 $config_azure_client_id = $row['config_azure_client_id'];

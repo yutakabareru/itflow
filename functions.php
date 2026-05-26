@@ -1181,6 +1181,51 @@ function getTicketStatusName($ticket_status) {
 }
 
 
+function saveAssetInterfaceTaggedNetworks($interface_id, $tagged_network_ids, $untagged_network_id = 0) {
+    global $mysqli;
+
+    $interface_id = intval($interface_id);
+    $untagged_network_id = intval($untagged_network_id);
+
+    mysqli_query($mysqli, "DELETE FROM asset_interface_tagged_networks WHERE interface_id = $interface_id");
+
+    if (!is_array($tagged_network_ids)) {
+        return;
+    }
+
+    foreach ($tagged_network_ids as $network_id) {
+        $network_id = intval($network_id);
+        if ($network_id > 0 && $network_id !== $untagged_network_id) {
+            mysqli_query($mysqli, "INSERT IGNORE INTO asset_interface_tagged_networks SET interface_id = $interface_id, network_id = $network_id");
+        }
+    }
+}
+
+function getAssetInterfaceTaggedNetworksDisplay($interface_id) {
+    global $mysqli;
+
+    $interface_id = intval($interface_id);
+    $networks = [];
+
+    $sql = mysqli_query($mysqli, "
+        SELECT network_name, network_vlan
+        FROM asset_interface_tagged_networks
+        LEFT JOIN networks ON network_id = asset_interface_tagged_networks.network_id
+        WHERE interface_id = $interface_id
+        ORDER BY network_name ASC
+    ");
+
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $label = nullable_htmlentities($row['network_name']);
+        if (!empty($row['network_vlan'])) {
+            $label .= ' (VLAN ' . intval($row['network_vlan']) . ')';
+        }
+        $networks[] = $label;
+    }
+
+    return $networks;
+}
+
 function ensureGitRemote() {
 
     global $repo_url;

@@ -3,6 +3,8 @@ require_once "includes/inc_all_admin.php";
 require_once "../includes/repo_config.php";
 
 require_once "../includes/database_version.php";
+require_once "../includes/fork_database_version.php";
+require_once "../includes/fork_database_helpers.php";
 
 if (empty($repo_url)) {
     $repo_url = ITFLOW_DEFAULT_REPO_URL;
@@ -47,7 +49,7 @@ $changelog_url = preg_replace('/\.git$/', '', $repo_url) . "/blob/$repo_branch/C
                 </div>
             <?php } ?>
 
-            <?php if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) { ?>
+            <?php if (anyDatabaseNeedsUpdate($mysqli)) { ?>
                 <div class="alert alert-danger">
                     <h1 class="font-weight-bold text-center">⚠️ DANGER ⚠️</h1>
                     <h2 class="font-weight-bold text-center">Do NOT run updates without first taking a backup</h2>
@@ -57,9 +59,13 @@ $changelog_url = preg_replace('/\.git$/', '', $repo_url) . "/blob/$repo_branch/C
                 <br>
                 <a class="btn btn-dark btn-lg my-4" href="post.php?update_db"><i class="fas fa-fw fa-4x fa-download mb-1"></i><h5>Update Database</h5></a>
                 <br>
-                <small class="text-secondary">Current DB Version: <?php echo CURRENT_DATABASE_VERSION; ?></small>
+                <small class="text-secondary">Current Upstream DB Version: <?php echo CURRENT_DATABASE_VERSION; ?></small>
                 <br>
-                <small class="text-secondary">Latest DB Version: <?php echo LATEST_DATABASE_VERSION; ?></small>
+                <small class="text-secondary">Latest Upstream DB Version: <?php echo LATEST_DATABASE_VERSION; ?></small>
+                <br>
+                <small class="text-secondary">Current Fork DB Version: <?php echo CURRENT_FORK_DATABASE_VERSION; ?></small>
+                <br>
+                <small class="text-secondary">Latest Fork DB Version: <?php echo LATEST_FORK_DATABASE_VERSION; ?></small>
                 <br>
                 <hr>
 
@@ -77,7 +83,8 @@ $changelog_url = preg_replace('/\.git$/', '', $repo_url) . "/blob/$repo_branch/C
 
                 <?php } else { ?>
                     <p><strong>Application Release Version:<br><strong class="text-dark"><?php echo APP_VERSION; ?></strong></p>
-                    <p class="text-secondary">Database Version:<br><strong class="text-dark"><?php echo CURRENT_DATABASE_VERSION; ?></strong></p>
+                    <p class="text-secondary">Upstream Database Version:<br><strong class="text-dark"><?php echo CURRENT_DATABASE_VERSION; ?></strong></p>
+                    <p class="text-secondary">Fork Database Version:<br><strong class="text-dark"><?php echo CURRENT_FORK_DATABASE_VERSION; ?></strong></p>
                     <p class="text-secondary">Code Commit:<br><strong class="text-dark"><?php echo $current_version; ?></strong></p>
                     <p class="text-muted">You are up to date!<br>Everything is going to be alright</p>
                     <i class="far fa-3x text-dark fa-smile-wink"></i><br>

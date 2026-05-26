@@ -254,6 +254,23 @@ CREATE TABLE `asset_interfaces` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `asset_interface_tagged_networks`
+--
+
+DROP TABLE IF EXISTS `asset_interface_tagged_networks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `asset_interface_tagged_networks` (
+  `interface_id` int(11) NOT NULL,
+  `network_id` int(11) NOT NULL,
+  PRIMARY KEY (`interface_id`,`network_id`),
+  KEY `network_id` (`network_id`),
+  CONSTRAINT `asset_interface_tagged_networks_ibfk_1` FOREIGN KEY (`interface_id`) REFERENCES `asset_interfaces` (`interface_id`) ON DELETE CASCADE,
+  CONSTRAINT `asset_interface_tagged_networks_ibfk_2` FOREIGN KEY (`network_id`) REFERENCES `networks` (`network_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `asset_notes`
 --
 
@@ -2135,6 +2152,7 @@ DROP TABLE IF EXISTS `settings`;
 CREATE TABLE `settings` (
   `company_id` int(11) NOT NULL,
   `config_current_database_version` varchar(10) NOT NULL,
+  `config_fork_database_version` int(11) NOT NULL DEFAULT 1,
   `config_start_page` varchar(200) DEFAULT 'clients.php',
   `config_smtp_provider` varchar(200) DEFAULT NULL,
   `config_smtp_host` varchar(200) DEFAULT NULL,

@@ -25,7 +25,7 @@ ob_start();
 
         <!-- Network -->
         <div class="form-group">
-            <label>Network</label>
+            <label>Untagged Network</label>
             <div class="input-group">
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>

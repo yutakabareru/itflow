@@ -102,27 +102,41 @@ if (isset($options['update']) || isset($options['force_update'])) {
 // If "update_db" is requested
 if (isset($options['update_db'])) {
     require_once "../includes/database_version.php";
+    require_once "../includes/fork_database_version.php";
+    require_once "../includes/fork_database_helpers.php";
 
     $latest_db_version = LATEST_DATABASE_VERSION;
+    $latest_fork_db_version = LATEST_FORK_DATABASE_VERSION;
 
     // Fetch the current version from the database
     $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings LIMIT 1");
     $row = mysqli_fetch_assoc($result);
     DEFINE("CURRENT_DATABASE_VERSION", $row['config_current_database_version']);
     $old_db_version = $row['config_current_database_version'];
+    $old_fork_db_version = getCurrentForkDatabaseVersion($mysqli);
 
     // Now include the update logic
     require_once "../admin/database_updates.php";
+    require_once "../admin/fork_database_updates.php";
 
     // After database_updates.php has done its job, fetch the updated current DB version again
     $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings LIMIT 1");
     $row = mysqli_fetch_assoc($result);
     $new_db_version = $row['config_current_database_version'];
+    $new_fork_db_version = getCurrentForkDatabaseVersion($mysqli);
 
-    if ($old_db_version !== $latest_db_version) {
-        echo "Database updated from version $old_db_version to $new_db_version.\n";
-        echo "The latest database version is $latest_db_version.\n";
+    if ($old_db_version !== $new_db_version) {
+        echo "Upstream database updated from version $old_db_version to $new_db_version.\n";
     } else {
-        echo "Database is already at the latest version ($latest_db_version). No updates were applied.\n";
+        echo "Upstream database is already at version $new_db_version.\n";
     }
+
+    if ($old_fork_db_version !== $new_fork_db_version) {
+        echo "Fork database updated from version $old_fork_db_version to $new_fork_db_version.\n";
+    } else {
+        echo "Fork database is already at version $new_fork_db_version.\n";
+    }
+
+    echo "Latest upstream database version is $latest_db_version.\n";
+    echo "Latest fork database version is $latest_fork_db_version.\n";
 }

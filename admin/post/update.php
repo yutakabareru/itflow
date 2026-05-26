@@ -287,9 +287,11 @@ if (isset($_GET['update_db'])) {
 
     // Get the current version
     require_once ('../includes/database_version.php');
+    require_once ('../includes/fork_database_version.php');
 
     // Perform upgrades, if required
     require_once ('database_updates.php');
+    require_once ('fork_database_updates.php');
 
     logAction("Database", "Update", "$session_name updated the database structure");
 

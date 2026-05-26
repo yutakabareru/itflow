@@ -5,6 +5,12 @@ require_once '../../../includes/modal_header.php';
 $asset_id = intval($_GET['asset_id'] ?? 0);
 $client_id = intval(getFieldById('assets', $asset_id, 'asset_client_id') ?? 0);
 
+$network_options = [];
+$sql_network_select = mysqli_query($mysqli, "SELECT network_id, network_name, network, network_vlan FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");
+while ($row = mysqli_fetch_assoc($sql_network_select)) {
+    $network_options[] = $row;
+}
+
 ob_start();
 
 ?>
@@ -101,24 +107,45 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-interface-network">
 
-                <!-- Network -->
+                <!-- Untagged Network -->
                 <div class="form-group">
-                    <label>Network</label>
+                    <label>Untagged Network</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
                         </div>
                         <select class="form-control select2" name="network">
                             <option value="">- Select Network -</option>
-                            <?php
-                            $sql_network_select = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");
-                            while ($row = mysqli_fetch_assoc($sql_network_select)) {
-                                $network_id = $row['network_id'];
+                            <?php foreach ($network_options as $row) {
+                                $network_id = intval($row['network_id']);
                                 $network_name = nullable_htmlentities($row['network_name']);
                                 $network = nullable_htmlentities($row['network']);
                                 ?>
                                 <option value="<?php echo $network_id; ?>">
                                     <?php echo "$network_name - $network"; ?>
+                                </option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Tagged Networks -->
+                <div class="form-group">
+                    <label>Tagged Networks</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+                        </div>
+                        <select class="form-control select2" name="tagged_networks[]" data-placeholder="- Select Tagged Networks -" multiple>
+                            <?php foreach ($network_options as $row) {
+                                $network_id = intval($row['network_id']);
+                                $network_name = nullable_htmlentities($row['network_name']);
+                                $network = nullable_htmlentities($row['network']);
+                                $network_vlan = intval($row['network_vlan']);
+                                $vlan_label = $network_vlan ? " (VLAN $network_vlan)" : '';
+                                ?>
+                                <option value="<?php echo $network_id; ?>">
+                                    <?php echo "$network_name$vlan_label - $network"; ?>
                                 </option>
                             <?php } ?>
                         </select>

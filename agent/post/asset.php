@@ -1292,6 +1292,8 @@ if (isset($_POST['add_asset_interface'])) {
 
     $new_interface_id = mysqli_insert_id($mysqli);
 
+    saveAssetInterfaceTaggedNetworks($new_interface_id, $tagged_networks, $network);
+
     // If Primary Interface Checked set all interfaces primary to 0 then set the new interface as primary with a 1
     if ($primary_interface) {
         mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_primary = 0 WHERE interface_asset_id = $asset_id");
@@ -1411,6 +1413,8 @@ if (isset($_POST['edit_asset_interface'])) {
         WHERE interface_id = $interface_id
     ";
     mysqli_query($mysqli, $sql_update);
+
+    saveAssetInterfaceTaggedNetworks($interface_id, $tagged_networks, $network);
 
     // If Primary Interface Checked set all interfaces primary to 0 then set the new interface as primary with a 1
     if ($primary_interface) {
